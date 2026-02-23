@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Shell from './components/Shell';
 import TrunkList from './pages/TrunkList';
 import CreateWizard from './pages/CreateWizard';
