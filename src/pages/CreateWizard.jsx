@@ -3,10 +3,95 @@ import { useNavigate } from 'react-router-dom';
 import {
   Check, ChevronRight, ChevronLeft, Plus, Trash2,
   Eye, EyeOff, Copy, RefreshCw, UserCheck, Server,
-  AlertTriangle, Info, CheckCircle2, X, Network
+  AlertTriangle, Info, CheckCircle2, X, Network, ArrowDownToLine
 } from 'lucide-react';
 import { REGIONS, TRANSPORTS, generateCredentials } from '../data';
 import { useTrunks } from '../TrunkContext';
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const ACCOUNT_ID = '664eeb61e0498715dc2dfeab';
+
+// ── Inbound Routing Panel ────────────────────────────────────────────────────
+function InboundRoutingPanel() {
+  const [copied, setCopied] = useState(null);
+
+  function copy(text, key) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1800);
+  }
+
+  const requestUri = `sip:+1123456789@${ACCOUNT_ID}.talkdesk.com`;
+  const xHeader = `X-Account-Id: ${ACCOUNT_ID}`;
+
+  return (
+    <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-4 space-y-3">
+      <div className="flex items-start gap-2.5">
+        <ArrowDownToLine size={15} className="text-indigo-500 flex-shrink-0 mt-0.5" />
+        <div>
+          <h4 className="text-sm font-semibold text-indigo-900">Inbound Routing — Required Carrier Configuration</h4>
+          <p className="text-xs text-indigo-700 mt-0.5 leading-relaxed">
+            Your carrier must identify the target Talkdesk account on every inbound INVITE using
+            <strong> one</strong> of the two methods below.
+          </p>
+        </div>
+      </div>
+
+      {/* Method 1 */}
+      <div className="bg-white rounded border border-indigo-100 p-3 space-y-1.5">
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Method 1 — Request-URI domain</p>
+        <p className="text-xs text-gray-500">
+          Send INVITE to <code className="bg-gray-100 px-1 rounded">sip:&lt;user|number&gt;@{ACCOUNT_ID}.talkdesk.com</code>
+        </p>
+        <div className="flex items-center gap-2 mt-1.5">
+          <code className="flex-1 font-mono text-xs bg-gray-50 border border-gray-200 rounded px-2.5 py-1.5 text-gray-700 truncate">
+            {requestUri}
+          </code>
+          <button
+            className="td-btn-ghost p-1.5 flex-shrink-0"
+            onClick={() => copy(requestUri, 'uri')}
+            title="Copy example"
+          >
+            {copied === 'uri' ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Method 2 */}
+      <div className="bg-white rounded border border-indigo-100 p-3 space-y-1.5">
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Method 2 — Custom SIP header</p>
+        <p className="text-xs text-gray-500">
+          Add the <code className="bg-gray-100 px-1 rounded">X-Account-Id</code> header to every inbound INVITE.
+        </p>
+        <div className="flex items-center gap-2 mt-1.5">
+          <code className="flex-1 font-mono text-xs bg-gray-50 border border-gray-200 rounded px-2.5 py-1.5 text-gray-700 truncate">
+            {xHeader}
+          </code>
+          <button
+            className="td-btn-ghost p-1.5 flex-shrink-0"
+            onClick={() => copy(xHeader, 'header')}
+            title="Copy header"
+          >
+            {copied === 'header' ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Account ID copy */}
+      <div className="flex items-center gap-2 pt-0.5">
+        <span className="text-xs text-indigo-700">Your Account ID:</span>
+        <code className="font-mono text-xs text-indigo-900 bg-indigo-100 px-2 py-0.5 rounded flex-1 truncate">{ACCOUNT_ID}</code>
+        <button
+          className="td-btn-ghost p-1.5 flex-shrink-0"
+          onClick={() => copy(ACCOUNT_ID, 'acctid')}
+          title="Copy Account ID"
+        >
+          {copied === 'acctid' ? <Check size={13} className="text-green-500" /> : <Copy size={13} />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const STEPS = [
   { id: 1, label: 'Region & Mode' },
@@ -262,6 +347,8 @@ function Step2Registered({ form, setForm }) {
           </p>
         </div>
       )}
+
+      <InboundRoutingPanel />
     </div>
   );
 }
@@ -347,6 +434,8 @@ function Step2Static({ form, setForm, errors }) {
         <Plus size={14} />
         Add Endpoint
       </button>
+
+      <InboundRoutingPanel />
     </div>
   );
 }
